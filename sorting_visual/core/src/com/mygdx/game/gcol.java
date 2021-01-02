@@ -20,28 +20,15 @@ public class gcol {// graph columns
             cur_color = Color.YELLOW;
             
         }
-        public int get_width_pos(){
-            return width_pos;
+        public int get_width_pos(){ return width_pos;  }
+        public int get_height_pos(){ return height_pos; }
+        public int get_width_shape(){  return width_shape; }
+        public int get_height_shape(){return  height_shape; }//this is the sorted value
+        public Color get_color(){return cur_color; }
 
-        }
-        public int get_height_pos(){
-            return height_pos;
 
-        }
-        public int get_width_shape(){
-            return width_shape;
-
-        }
-        public int get_height_shape(){
-            return  height_shape;
-
-        }
-        public Color get_color(){
-            return cur_color;
-        }
-        public void set_color(Color a){
-           cur_color= a;
-        }
+        public void set_color(Color a){ cur_color= a;  }
+        public void set_height_shape(int a){height_shape = a;}
       
 
 }

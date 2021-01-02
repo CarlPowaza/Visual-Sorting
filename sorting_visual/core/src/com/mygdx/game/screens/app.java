@@ -12,32 +12,38 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.game.inf_array;
 
 public class app implements Screen {
     OrthographicCamera cam;
-    private final int screenWidth = 1280, screenHeight = 720 ;
-    private ShapeRenderer shapes;
-    private long startTime=0;
-    private long tempTime=0;
-    private inf_array arr_data;//array of graph columns
-    private int arr_size =20;
-    private int node_width =20;
-    private int colorthis;
-    public BitmapFont font;
-    public SpriteBatch batch;
     Stage stage;
     TextButton test;
-    Skin skin;
+    TextButton reset;
+    Skin skin;  
+    private ShapeRenderer shapes;
+    private inf_array arr_data;//array of graph columns
+    public BitmapFont font;
+    public SpriteBatch batch;
+
+
+    private final int screenWidth = 1280, screenHeight = 720 ;
+    private long startTime=0;
+    private long tempTime=0;
+    private int arr_size =60;
+    private int node_width =20;
+    private int colorthis;
+    float vis_speed=50000;
     float lol =0;
-    float x = 300;
-    float y =300;
+    float x = 0;
+    float y =300; 
     int pulse;
+    int bogo;
+
 
     public app()
     {
@@ -51,6 +57,7 @@ public class app implements Screen {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
         pulse =0;
+        bogo=0;
         colorthis = 0;
      
 
@@ -68,20 +75,43 @@ public class app implements Screen {
         table.setDebug(false);
         table.setPosition(x,y);
         stage.addActor(table);
-        Skin skin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
-        
-        TextButton test = new TextButton("pulse", skin);
+        Skin skin = new Skin(Gdx.files.internal("skin/uiskin.json"));
+        TextButton reset= new TextButton("reset", skin);
+        TextButton demo = new TextButton("pulse", skin);
         TextButton test2 = new TextButton("Sort", skin);
-        table.add(test).padRight(lol);
-        table.add(test2).padRight(lol);
-        
-        test.addListener(new ChangeListener() {
+
+    
+        table.add(reset).padTop(lol);
+        table.add(demo).padTop(lol);
+        table.add(test2).padTop(lol);
+
+        reset.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+                pulse =0;
+                bogo=0;
+               arr_data.re_init_array(arr_size);
+			}
+			
+        });  
+        demo.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
                 if(pulse == 0)
                     pulse =1;
                 else
                     pulse =0;
+					
+			}
+			
+        });  
+        test2.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+                if(bogo == 0)
+                    bogo =1;
+                else
+                    bogo =0;
 					
 			}
 			
@@ -101,39 +131,33 @@ public class app implements Screen {
         stage.draw();
         showGraph();
         pulsing();
+        
     }
 
     private void showGraph(){
 
         shapes.setProjectionMatrix(cam.combined);
         shapes.begin(ShapeType.Filled);
-                                                  
-      
-        
+
             for (int i = 0; i < arr_size; i++) {          
                  shapes.setColor(arr_data.rcv(i));                                                 //uses a bunch of getters to grab info about
                  shapes.rect(arr_data.rwp(i),arr_data.rhp(i),arr_data.rws(i),arr_data.rhs(i));//the columns from gcol
         }  
         shapes.end();
-        
-           
-    
-        
 
-        
     }
-    private void pulsing(){
-        
-        if(TimeUtils.nanoTime() -tempTime> 200000000)
-        {
+
+    private void demo(){
         if(colorthis == arr_size-1){
             arr_data.scv(colorthis,Color.RED);
             arr_data.scv(colorthis-1,Color.YELLOW);
             colorthis++;
+            tempTime= TimeUtils.nanoTime();
         
         }else if(colorthis==arr_size){
             arr_data.scv(colorthis-1,Color.YELLOW);
             colorthis=0;
+            tempTime= TimeUtils.nanoTime();
         }else{
            
         arr_data.scv(colorthis,Color.RED);
@@ -143,6 +167,15 @@ public class app implements Screen {
         colorthis++;
         tempTime = TimeUtils.nanoTime();
         }
+    }
+    private void pulsing(){
+        
+        if(TimeUtils.nanoTime() -tempTime> vis_speed)
+        {
+            if(pulse == 1)
+            demo();
+            if(bogo ==1)
+           tempTime= arr_data.selectionSort();
         }
          
     }
